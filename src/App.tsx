@@ -20,24 +20,14 @@ import { Todo } from './types/Todo'
 import './App.css'
 
 function App() {
-    // Load todos from localStorage on initial render
     const [todos, setTodos] = useState<Todo[]>(() => {
         const savedTodos = localStorage.getItem('todos');
         return savedTodos ? JSON.parse(savedTodos) : [];
     });
-    const [hasFirstTodo, setHasFirstTodo] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
 
-    // Save todos to localStorage whenever they change
     useEffect(() => {
         localStorage.setItem('todos', JSON.stringify(todos));
-        
-        // Check if this is the first todo being added
-        if (todos.length === 1 && !hasFirstTodo) {
-            setHasFirstTodo(true);
-            containerRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [todos, hasFirstTodo]);
+    }, [todos]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -87,12 +77,7 @@ function App() {
     };
 
     return (
-        <div 
-            ref={containerRef}
-            className={`transition-all duration-1000 ease-in-out ${
-                hasFirstTodo ? 'mt-8' : 'mt-[50vh] transform -translate-y-1/2'
-            }`}
-        >
+        <div className="min-h-screen bg-gray-900 py-8">
             <div className="max-w-md mx-auto p-4">
                 <h1 className="text-2xl font-bold mb-4 text-white">Todo List</h1>
                 <TodoForm onAdd={addTodo} />
@@ -105,7 +90,7 @@ function App() {
                         items={todos}
                         strategy={verticalListSortingStrategy}
                     >
-                        <ul className="border rounded divide-y">
+                        <ul className="border rounded divide-y bg-white">
                             {todos.map(todo => (
                                 <SortableTodoItem
                                     key={todo.id}
