@@ -89,12 +89,12 @@ function App() {
     return (
         <div 
             ref={containerRef}
-            className={`transition-all duration-700 ease-in-out ${
-                hasFirstTodo ? 'mt-4' : 'mt-[40vh]'
+            className={`transition-all duration-1000 ease-in-out ${
+                hasFirstTodo ? 'mt-8' : 'mt-[50vh] transform -translate-y-1/2'
             }`}
         >
             <div className="max-w-md mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-4">Todo List</h1>
+                <h1 className="text-2xl font-bold mb-4 text-white">Todo List</h1>
                 <TodoForm onAdd={addTodo} />
                 <DndContext
                     sensors={sensors}
