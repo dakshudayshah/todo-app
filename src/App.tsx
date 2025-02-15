@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { 
     DndContext, 
     closestCenter,
@@ -25,11 +25,19 @@ function App() {
         const savedTodos = localStorage.getItem('todos');
         return savedTodos ? JSON.parse(savedTodos) : [];
     });
+    const [hasFirstTodo, setHasFirstTodo] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Save todos to localStorage whenever they change
     useEffect(() => {
         localStorage.setItem('todos', JSON.stringify(todos));
-    }, [todos]);
+        
+        // Check if this is the first todo being added
+        if (todos.length === 1 && !hasFirstTodo) {
+            setHasFirstTodo(true);
+            containerRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [todos, hasFirstTodo]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -79,31 +87,38 @@ function App() {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-4">
-            <h1 className="text-2xl font-bold mb-4">Todo List</h1>
-            <TodoForm onAdd={addTodo} />
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext
-                    items={todos}
-                    strategy={verticalListSortingStrategy}
+        <div 
+            ref={containerRef}
+            className={`transition-all duration-700 ease-in-out ${
+                hasFirstTodo ? 'mt-4' : 'mt-[40vh]'
+            }`}
+        >
+            <div className="max-w-md mx-auto p-4">
+                <h1 className="text-2xl font-bold mb-4">Todo List</h1>
+                <TodoForm onAdd={addTodo} />
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
                 >
-                    <ul className="border rounded divide-y">
-                        {todos.map(todo => (
-                            <SortableTodoItem
-                                key={todo.id}
-                                todo={todo}
-                                onToggle={toggleTodo}
-                                onDelete={deleteTodo}
-                                onEdit={editTodo}
-                            />
-                        ))}
-                    </ul>
-                </SortableContext>
-            </DndContext>
+                    <SortableContext
+                        items={todos}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <ul className="border rounded divide-y">
+                            {todos.map(todo => (
+                                <SortableTodoItem
+                                    key={todo.id}
+                                    todo={todo}
+                                    onToggle={toggleTodo}
+                                    onDelete={deleteTodo}
+                                    onEdit={editTodo}
+                                />
+                            ))}
+                        </ul>
+                    </SortableContext>
+                </DndContext>
+            </div>
         </div>
     );
 }
